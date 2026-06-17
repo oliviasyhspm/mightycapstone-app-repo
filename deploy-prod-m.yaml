@@ -1,0 +1,46 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+    - madhu-sample-prod 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    environment: production
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Login to ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build and Push
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ steps.login-ecr.outputs.registry }}/my-app:${{ github.sha }}
+
+    - name: Configure kubectl
+      run: |
+        aws eks update-kubeconfig \
+          --region ap-southeast-1 \
+          --name bq-eks-cluster-prod
+    
+    - name: Setup Helm
+      uses: azure/setup-helm@v4
+
+    - name: Deploy with Helm
+      run: |
+        helm upgrade --install my-app ./helm \
+          --set image.repository=${{ steps.login-ecr.outputs.registry }}/my-app \
+          --set image.tag=${{ github.sha }}
+
+    - name: Verify deployment
+      run: |
+        kubectl rollout status deployment/my-app
