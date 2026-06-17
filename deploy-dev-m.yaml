@@ -1,10 +1,10 @@
 
 name: Deploy to Dev
 
-#on:
-  #push:
-    #branches:
-      #- madhu-sample-dev #eremove when testing
+on:
+  push:
+    branches:
+    - madhu-sample-dev 
 
 jobs:
   deploy:
@@ -29,7 +29,7 @@ jobs:
       run: |
         aws eks update-kubeconfig \
           --region ap-southeast-1 \
-          --name dev-cluster #need to change after deploying EKS cluster
+          --name bq-eks-cluster-dev
 
     - name: Update deployment
       run: |
