@@ -1,82 +1,62 @@
-name: Build Worker
-# template source: https://github.com/dockersamples/.github/blob/main/templates/call-docker-build.yaml
+name: Build Worker Service
 
 on:
-  # we want pull requests so we can build(test) but not push to image registry
   push:
     branches:
-      - 'main'
-    # only build when important files change
+      - main
+      - development
     paths:
       - 'worker/**'
       - '.github/workflows/call-docker-build-worker.yaml'
   pull_request:
     branches:
-      - 'main'
-    # only build when important files change
+      - main
+      - development
     paths:
       - 'worker/**'
       - '.github/workflows/call-docker-build-worker.yaml'
 
 jobs:
-  call-docker-build:
+  build-scan-push:
+    runs-on: ubuntu-latest
 
-    name: Worker Call Docker Build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    uses: dockersamples/.github/.github/workflows/reusable-docker-build.yaml@main
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1
 
-    permissions:
-      contents: read
-      packages: write # needed to push docker image to ghcr.io
-      pull-requests: write # needed to create and update comments in PRs
-    
-    secrets:
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # Only needed if with:dockerhub-enable is true below
-      dockerhub-username: ${{ secrets.DOCKERHUB_USERNAME }}
+      - name: Set version tag
+        run: |
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
+            echo "TAG=v2" >> $GITHUB_ENV
+          else
+            echo "TAG=v1" >> $GITHUB_ENV
+          fi
 
-      # Only needed if with:dockerhub-enable is true below
-      dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build Docker image
+        run: |
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting
+          docker build -t $REGISTRY:worker-${TAG} ./worker
 
-    with:
-      
-      ### REQUIRED
-      ### ENABLE ONE OR BOTH REGISTRIES
-      ### tell docker where to push.
-      ### NOTE if Docker Hub is set to true, you must set secrets above and also add account/repo/tags below
-      dockerhub-enable: true
-      ghcr-enable: true
+      - name: Security scan with Trivy
+        uses: aquasecurity/trivy-action@v0.20.0
+        with:
+          scan-type: image
+          image-ref: ${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting:worker-${{ env.TAG }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
 
-      ### REQUIRED 
-      ### A list of the account/repo names for docker build. List should match what's enabled above
-      ### defaults to:
-      image-names: |
-        ghcr.io/dockersamples/example-voting-app-worker
-        dockersamples/examplevotingapp_worker
-      
-      ### REQUIRED set rules for tagging images, based on special action syntax:
-      ### https://github.com/docker/metadata-action#tags-input
-      ### defaults to:
-      tag-rules: |
-        type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
-        type=ref,event=pr
-      
-      ### path to where docker should copy files into image
-      ### defaults to root of repository (.)
-      context: worker
-      
-      ### Dockerfile alternate name. Default is Dockerfile (relative to context path)
-      # file: Containerfile
-
-      ### build stage to target, defaults to empty, which builds to last stage in Dockerfile
-      # target:
-      
-      ### platforms to build for, defaults to linux/amd64
-      ### other options: linux/amd64,linux/arm64,linux/arm/v7
-      # FIXME worker arm/v7 support doesn't build in .net core 3.1 with QEMU
-      # a fix would likely run the .net build on amd64 but with a target of arm/v7
-      platforms: linux/amd64,linux/arm64,linux/arm/v7
-      
-      ### Create a PR comment with image tags and labels
-      ### defaults to false
-      # comment-enable: false
+      - name: Push image to ECR
+        run: |
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting
+          docker push $REGISTRY:worker-${TAG}
