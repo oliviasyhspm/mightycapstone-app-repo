@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-    - madhu-sample-prod 
+    - feature/madhu-sample-prod 
 
 jobs:
   deploy:
