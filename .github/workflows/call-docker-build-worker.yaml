@@ -1,6 +1,7 @@
 name: Build Worker Service
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
