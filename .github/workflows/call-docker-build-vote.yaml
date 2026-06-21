@@ -1,6 +1,7 @@
 name: Build Vote Service
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
