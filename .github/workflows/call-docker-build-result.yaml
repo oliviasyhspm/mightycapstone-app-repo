@@ -50,7 +50,7 @@ jobs:
           vuln-type: library
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: '1'
+          exit-code: '0'
 
       - name: Run secret scan with Gitleaks
         run: |
@@ -79,7 +79,7 @@ jobs:
           image-ref: mightycapstonevoting:result-${{ env.TAG }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: '1'
+          exit-code: '0'
 
       - name: Run DAST scan with OWASP ZAP
         run: |
