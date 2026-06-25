@@ -85,6 +85,9 @@ jobs:
         run: |
           echo "Worker is a background service without an HTTP endpoint, so OWASP ZAP DAST is not applicable to this service."
           echo "DAST is implemented for the vote and result web services."
+          
+      - name: Verify AWS credentials
+        run: aws sts get-caller-identity
 
       - name:   Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
