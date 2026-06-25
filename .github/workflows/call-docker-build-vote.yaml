@@ -77,13 +77,14 @@ jobs:
       - name: Build Docker image
         run: |
           REGISTRY=${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting
-          docker build -t $REGISTRY:vote-${TAG} ./vote
+          docker build -t vote-service:${TAG} ./vote
+          docker tag vote-service:${TAG} $REGISTRY:vote-${TAG}
 
       - name: Security scan with Trivy
         uses: aquasecurity/trivy-action@v0.20.0
         with:
           scan-type: image
-          image-ref: ${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting:vote-${{ env.TAG }}
+          image-ref: vote-service:${{ env.TAG }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: '0'
@@ -92,7 +93,7 @@ jobs:
         run: |
           docker network create vote-dast-net
           docker run -d --name redis --network vote-dast-net redis:7-alpine
-          docker run -d --name vote-dast --network vote-dast-net -p 8080:80 mightycapstonevoting:vote-${TAG}
+          docker run -d --name vote-dast --network vote-dast-net -p 8080:80 vote-service:${TAG}
           sleep 20
           curl --fail --retry 10 --retry-delay 5 http://localhost:8080/
           mkdir -p zap-reports
