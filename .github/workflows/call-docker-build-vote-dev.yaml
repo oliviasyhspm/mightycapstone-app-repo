@@ -1,21 +1,20 @@
-name: Build Worker Service
+name: Build Vote Service
 
 on:
-  workflow_dispatch:
+  # workflow_dispatch:
   push:
     branches:
-      - main
-      - development
+      - feature/madhu-sample-dev
     paths:
-      - 'worker/**'
-      - '.github/workflows/call-docker-build-worker.yaml'
-  pull_request:
-    branches:
-      - main
-      - development
-    paths:
-      - 'worker/**'
-      - '.github/workflows/call-docker-build-worker.yaml'
+      - 'vote/**'
+      - '.github/workflows/call-docker-build-vote-dev.yaml'
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - development
+  #   paths:
+  #     - 'vote/**'
+  #     - '.github/workflows/call-docker-build-vote.yaml'
 
 jobs:
   build-scan-push:
@@ -47,7 +46,7 @@ jobs:
             --exclude result/views/angular.min.js \
             --exclude result/views/socket.io.js \
             --sarif \
-            --output security-reports/semgrep-worker.sarif \
+            --output security-reports/semgrep-vote.sarif \
             . || true
 
       - name: Generate SAST HTML Report
@@ -55,9 +54,9 @@ jobs:
         run: |
           python - <<'PY'
           import json, html, pathlib, datetime
-          sarif_path = pathlib.Path("security-reports/semgrep-worker.sarif")
-          html_path = pathlib.Path("security-reports/semgrep-worker.html")
-          title = "SAST (Semgrep) - Worker Service"
+          sarif_path = pathlib.Path("security-reports/semgrep-vote.sarif")
+          html_path = pathlib.Path("security-reports/semgrep-vote.html")
+          title = "SAST (Semgrep) - Vote Service"
           rows = []
           error = None
           try:
@@ -113,12 +112,12 @@ jobs:
         if: always()
         run: |
           {
-            echo "## SAST (Semgrep) - Worker Service"
+            echo "## SAST (Semgrep) - Vote Service"
             echo ""
-            if [ -f security-reports/semgrep-worker.sarif ]; then
+            if [ -f security-reports/semgrep-vote.sarif ]; then
               echo "✅ SAST scan completed."
               echo ""
-              echo "**Report artifact files:** semgrep-worker.sarif, semgrep-worker.html"
+              echo "**Report artifact files:** semgrep-vote.sarif, semgrep-vote.html"
             else
               echo "❌ SAST report was not generated."
             fi
@@ -128,22 +127,22 @@ jobs:
         uses: aquasecurity/trivy-action@v0.20.0
         with:
           scan-type: fs
-          scan-ref: ./worker
+          scan-ref: ./vote
           vuln-type: library
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: '0'
           format: sarif
-          output: security-reports/trivy-fs-worker.sarif
+          output: security-reports/trivy-fs-vote.sarif
 
       - name: Generate Dependency Scan HTML Report
         if: always()
         run: |
           python - <<'PY'
           import json, html, pathlib, datetime
-          sarif_path = pathlib.Path("security-reports/trivy-fs-worker.sarif")
-          html_path = pathlib.Path("security-reports/trivy-fs-worker.html")
-          title = "SCA / Dependency Scan (Trivy FS) - Worker Service"
+          sarif_path = pathlib.Path("security-reports/trivy-fs-vote.sarif")
+          html_path = pathlib.Path("security-reports/trivy-fs-vote.html")
+          title = "SCA / Dependency Scan (Trivy FS) - Vote Service"
           rows = []
           error = None
           try:
@@ -199,12 +198,12 @@ jobs:
         if: always()
         run: |
           {
-            echo "## SCA / Dependency Vulnerability Scan (Trivy FS) - Worker Service"
+            echo "## SCA / Dependency Vulnerability Scan (Trivy FS) - Vote Service"
             echo ""
-            if [ -f security-reports/trivy-fs-worker.sarif ]; then
+            if [ -f security-reports/trivy-fs-vote.sarif ]; then
               echo "✅ Dependency vulnerability scan completed."
               echo ""
-              echo "**Report artifact files:** trivy-fs-worker.sarif, trivy-fs-worker.html"
+              echo "**Report artifact files:** trivy-fs-vote.sarif, trivy-fs-vote.html"
             else
               echo "❌ Dependency scan report was not generated."
             fi
@@ -221,7 +220,7 @@ jobs:
             --redact \
             --verbose \
             --report-format json \
-            --report-path security-reports/gitleaks-worker.json \
+            --report-path security-reports/gitleaks-vote.json \
             --exit-code 0
 
       - name: Generate Secret Scan HTML Report
@@ -229,9 +228,9 @@ jobs:
         run: |
           python - <<'PY'
           import json, html, pathlib, datetime
-          json_path = pathlib.Path("security-reports/gitleaks-worker.json")
-          html_path = pathlib.Path("security-reports/gitleaks-worker.html")
-          title = "Secret Scan (Gitleaks) - Worker Service"
+          json_path = pathlib.Path("security-reports/gitleaks-vote.json")
+          html_path = pathlib.Path("security-reports/gitleaks-vote.html")
+          title = "Secret Scan (Gitleaks) - Vote Service"
           findings = []
           error = None
           try:
@@ -277,12 +276,12 @@ jobs:
         if: always()
         run: |
           {
-            echo "## Secret Scan (Gitleaks) - Worker Service"
+            echo "## Secret Scan (Gitleaks) - Vote Service"
             echo ""
-            if [ -f security-reports/gitleaks-worker.json ]; then
+            if [ -f security-reports/gitleaks-vote.json ]; then
               echo "✅ Secret scan completed."
               echo ""
-              echo "**Report artifact files:** gitleaks-worker.json, gitleaks-worker.html"
+              echo "**Report artifact files:** gitleaks-vote.json, gitleaks-vote.html"
             else
               echo "❌ Secret scan report was not generated."
             fi
@@ -302,28 +301,29 @@ jobs:
 
       - name: Build Docker image
         run: |
-          REGISTRY=${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting
-          docker build -t worker-service:${TAG} -t $REGISTRY:worker-${TAG} ./worker
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev
+          docker build -t vote-service:${TAG} ./vote
+          docker tag vote-service:${TAG} $REGISTRY:vote-${TAG}
 
       - name: Security scan with Trivy
         uses: aquasecurity/trivy-action@v0.20.0
         with:
           scan-type: image
-          image-ref: worker-service:${{ env.TAG }}
+          image-ref: vote-service:${{ env.TAG }}
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: '0'
           format: sarif
-          output: security-reports/trivy-image-worker.sarif
+          output: security-reports/trivy-image-vote.sarif
 
       - name: Generate Container Image Scan HTML Report
         if: always()
         run: |
           python - <<'PY'
           import json, html, pathlib, datetime
-          sarif_path = pathlib.Path("security-reports/trivy-image-worker.sarif")
-          html_path = pathlib.Path("security-reports/trivy-image-worker.html")
-          title = "Container Image Scan (Trivy Image) - Worker Service"
+          sarif_path = pathlib.Path("security-reports/trivy-image-vote.sarif")
+          html_path = pathlib.Path("security-reports/trivy-image-vote.html")
+          title = "Container Image Scan (Trivy Image) - Vote Service"
           rows = []
           error = None
           try:
@@ -379,48 +379,89 @@ jobs:
         if: always()
         run: |
           {
-            echo "## Container Image Scan (Trivy Image) - Worker Service"
+            echo "## Container Image Scan (Trivy Image) - Vote Service"
             echo ""
-            if [ -f security-reports/trivy-image-worker.sarif ]; then
+            if [ -f security-reports/trivy-image-vote.sarif ]; then
               echo "✅ Container image scan completed."
               echo ""
-              echo "**Report artifact files:** trivy-image-worker.sarif, trivy-image-worker.html"
+              echo "**Report artifact files:** trivy-image-vote.sarif, trivy-image-vote.html"
             else
               echo "❌ Container image scan report was not generated."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: DAST note for worker service
+      - name: Run DAST scan with OWASP ZAP
+        continue-on-error: true
         run: |
-          echo "Worker is a background service without an HTTP endpoint, so OWASP ZAP DAST is not applicable to this service."
-          echo "DAST is implemented for the vote and result web services."
+          docker network create vote-dast-net || true
+          docker rm -f redis vote-dast || true
+          docker run -d --name redis --network vote-dast-net redis:7-alpine
+          docker run -d --name vote-dast --network vote-dast-net -p 8080:80 vote-service:${TAG}
+          sleep 20
+          curl --fail --retry 10 --retry-delay 5 http://localhost:8080/
+
+          mkdir -p zap-reports
+          chmod 777 zap-reports
+
+          docker run --rm \
+            --user root \
+            --network host \
+            -v "${PWD}/zap-reports:/zap/wrk/:rw" \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+              -t http://localhost:8080 \
+              -I \
+              -r vote-zap-report.html
+
+          mkdir -p security-reports
+          cp zap-reports/vote-zap-report.html security-reports/vote-zap-report.html || true
+          echo "=== zap-reports ==="
+          ls -lah zap-reports || true
+          echo "=== zap-reports ==="
+          ls -lah zap-reports || true
+          echo "=== security-reports ==="
+          ls -lah security-reports || true || true
+
+      - name: Verify ZAP Report
+        if: always()
+        run: |
+          echo "=== zap-reports ==="
+          ls -lah zap-reports || true
+          echo "=== security-reports ==="
+          ls -lah security-reports || true
 
       - name: Publish DAST Summary
         if: always()
         run: |
           {
-            echo "## DAST (OWASP ZAP) - Worker Service"
+            echo "## DAST (OWASP ZAP) - Vote Service"
             echo ""
-            echo "ℹ️ DAST is not applicable because the worker is a background service without an HTTP endpoint."
-            echo ""
-            echo "DAST is implemented for the vote and result web services."
+            if [ -f security-reports/vote-zap-report.html ]; then
+              echo "✅ DAST scan completed and HTML report was generated."
+              echo ""
+              echo "**Report artifact file:** vote-zap-report.html"
+            else
+              echo "❌ DAST report was not generated."
+              echo ""
+              echo "Please check the OWASP ZAP logs above."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Publish Consolidated Security Summary
         if: always()
         run: |
           {
-            echo "# DevSecOps Security Reports - Worker Service"
+            echo "# DevSecOps Security Reports - Vote Service"
             echo ""
             echo "| Security Control | Report File |"
             echo "|---|---|"
-            echo "| SAST (Semgrep) | semgrep-worker.sarif, semgrep-worker.html |"
-            echo "| SCA / Dependency Scan (Trivy FS) | trivy-fs-worker.sarif, trivy-fs-worker.html |"
-            echo "| Secret Scan (Gitleaks) | gitleaks-worker.json, gitleaks-worker.html |"
-            echo "| Container Image Scan (Trivy Image) | trivy-image-worker.sarif, trivy-image-worker.html |"
-            echo "| DAST (OWASP ZAP) | Not applicable - background service |"
+            echo "| SAST (Semgrep) | semgrep-vote.sarif, semgrep-vote.html |"
+            echo "| SCA / Dependency Scan (Trivy FS) | trivy-fs-vote.sarif, trivy-fs-vote.html |"
+            echo "| Secret Scan (Gitleaks) | gitleaks-vote.json, gitleaks-vote.html |"
+            echo "| Container Image Scan (Trivy Image) | trivy-image-vote.sarif, trivy-image-vote.html |"
+            echo "| DAST (OWASP ZAP) | vote-zap-report.html |"
             echo ""
-            echo "Human-readable HTML reports and machine-readable SARIF/JSON reports are uploaded as the **security-reports-worker** workflow artifact."
+            echo "Human-readable HTML reports and machine-readable SARIF/JSON reports are uploaded as the **security-reports-vote** workflow artifact."
             echo ""
             echo "## Files generated"
             echo ""
@@ -432,11 +473,35 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: security-reports-worker
+          name: security-reports-vote
           path: security-reports/
           if-no-files-found: warn
 
       - name: Push image to ECR
         run: |
           REGISTRY=${{ steps.login-ecr.outputs.registry }}/mightycapstonevoting
-          docker push $REGISTRY:worker-${TAG}
+          docker push $REGISTRY:vote-${TAG}
+
+      - name: Push image to ECR
+        run: | 
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev
+          docker push $REGISTRY:vote-${TAG}
+      
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ap-southeast-1 \
+            --name bq-eks-cluster-dev
+      
+      - name: Deploy application
+        run: |
+          kubectl apply -f k8s-specifications/
+      
+      - name: Update deployment
+        run: |
+          kubectl set image deployment/vote \
+          vote=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev:vote-${TAG}
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/vote
