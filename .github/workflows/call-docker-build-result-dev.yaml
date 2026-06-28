@@ -493,11 +493,11 @@ jobs:
 
       - name: Update deployment
         run: |
-          kubectl set image deployment/result-service \
+          kubectl set image deployment/result \
           app=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev:result-${TAG}
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/result-service
+          kubectl rollout status deployment/result
 
 ####test
