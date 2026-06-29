@@ -8,14 +8,14 @@ on:
       - feature/madhu-sample-dev
     paths:
       - 'result/**'
-      - '.github/workflows/call-docker-build-result.yaml'
+      - '.github/workflows/call-docker-build-result-dev-oidc.yaml'
 #   pull_request:
 #     branches:
 #       - main
 #       - development
 #     paths:
 #       - 'result/**'
-#       - '.github/workflows/call-docker-build-result.yaml'
+#       - '.github/workflows/call-docker-build-result-dev-oidc.yaml'
 
 permissions:
   id-token: write
