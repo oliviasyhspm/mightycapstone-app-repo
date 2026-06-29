@@ -1,13 +1,13 @@
 name: Build Vote Service
 
-on:
-  # workflow_dispatch:
-  push:
-    branches:
-      - feature/madhu-sample-dev
-    paths:
-      - 'vote/**'
-      - '.github/workflows/call-docker-build-vote-dev.yaml'
+# on:
+#   # workflow_dispatch:
+#   push:
+#     branches:
+#       - feature/madhu-sample-dev
+#     paths:
+#       - 'vote/**'
+#       - '.github/workflows/call-docker-build-vote-dev.yaml'
   # pull_request:
   #   branches:
   #     - main
