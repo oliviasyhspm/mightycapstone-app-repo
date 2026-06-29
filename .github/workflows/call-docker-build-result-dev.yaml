@@ -1,14 +1,14 @@
 name: Build Result Service
 
-on:
-  # workflow_dispatch:
-  push:
-    branches:
-      - feature/madhu-sample-dev
-    paths:
-      - 'result/**'
-      - '.github/workflows/call-docker-build-result-dev.yaml'
-  # pull_request:
+# on:
+#   # workflow_dispatch:
+#   push:
+#     branches:
+#       - feature/madhu-sample-dev
+#     paths:
+#       - 'result/**'
+#       - '.github/workflows/call-docker-build-result-dev.yaml'
+#   # pull_request:
   #   branches:
   #     - feature/madhu-sample-prod
   #   paths:

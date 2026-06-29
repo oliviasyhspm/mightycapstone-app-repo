@@ -1,19 +1,19 @@
 name: Build Result Service
 
-on:
-  # workflow_dispatch:
-  push:
-    branches:
-      - feature/madhu-sample-prod
-    paths:
-      - 'result/**'
-      - '.github/workflows/call-docker-build-result-prod.yaml'
-  pull_request:
-    branches:
-      - feature/madhu-sample-prod
-    paths:
-      - 'result/**'
-      - '.github/workflows/call-docker-build-result-prod.yaml'
+# on:
+#   # workflow_dispatch:
+#   push:
+#     branches:
+#       - feature/madhu-sample-prod
+#     paths:
+#       - 'result/**'
+#       - '.github/workflows/call-docker-build-result-prod.yaml'
+#   pull_request:
+#     branches:
+#       - feature/madhu-sample-prod
+#     paths:
+#       - 'result/**'
+#       - '.github/workflows/call-docker-build-result-prod.yaml'
 
 jobs:
   build-scan-push:
