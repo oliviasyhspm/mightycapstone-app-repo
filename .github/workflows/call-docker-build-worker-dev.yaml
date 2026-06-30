@@ -4,17 +4,17 @@ on:
   # workflow_dispatch:
   push:
     branches:
-      - feature/madhu-sample-prod
-    paths:
-      - 'worker/**'
-      - '.github/workflows/call-docker-build-worker-dev.yaml'
-  pull_request:
-    branches:
-      - main
       - development
     paths:
       - 'worker/**'
-      - '.github/workflows/call-docker-build-worker.yaml'
+      - '.github/workflows/call-docker-build-worker-dev.yaml'
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - development
+  #   paths:
+  #     - 'worker/**'
+  #     - '.github/workflows/call-docker-build-worker.yaml'
 
 jobs:
   build-scan-push:

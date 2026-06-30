@@ -4,16 +4,16 @@ on:
   # workflow_dispatch:
   push:
     branches:
-      - feature/madhu-sample-dev
+      - development
     paths:
       - 'result/**'
       - '.github/workflows/call-docker-build-result-dev.yaml'
-  # pull_request:
-    branches:
-      - feature/madhu-sample-prod
-    paths:
-      - 'result/**'
-      - '.github/workflows/call-docker-build-result-dev.yaml'
+  # # pull_request:
+  #   branches:
+  #     - development
+  #   paths:
+  #     - 'result/**'
+  #     - '.github/workflows/call-docker-build-result-dev.yaml'
 
 jobs:
   build-scan-push:
