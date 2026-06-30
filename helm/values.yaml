@@ -1,9 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ""
-  tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 service:
   type: NodePort
@@ -11,5 +9,17 @@ service:
   targetPort: 80
   nodePort: 31001
 
-nameOverride: ""
-fullnameOverride: ""
+result:
+  image:
+    repository: <account>.dkr.ecr.ap-southeast-1.amazonaws.com/bq-eks-repo-prod
+    tag: latest
+
+vote:
+  image:
+    repository: <account>.dkr.ecr.ap-southeast-1.amazonaws.com/bq-eks-repo-prod
+    tag: latest
+
+worker:
+  image:
+    repository: <account>.dkr.ecr.ap-southeast-1.amazonaws.com/bq-eks-repo-prod
+    tag: latest

@@ -7,14 +7,13 @@ on:
       - feature/madhu-sample-prod
     paths:
       - 'worker/**'
-      - '.github/workflows/call-docker-build-worker-dev.yaml'
+      - '.github/workflows/call-docker-build-worker-prod.yaml'
   pull_request:
     branches:
-      - main
-      - development
+      - feature/madhu-sample-prod
     paths:
       - 'worker/**'
-      - '.github/workflows/call-docker-build-worker.yaml'
+      - '.github/workflows/call-docker-build-worker-prod.yaml'
 
 jobs:
   build-scan-push:
@@ -293,7 +292,7 @@ jobs:
 
       - name: Set version tag
         run: |
-          if [[ "${GITHUB_REF##*/}" == "feature/madhu-sample-prod" ]]; then
+          if [[ "$$GITHUB_REF_NAME" == "feature/madhu-sample-prod" ]]; then
             echo "TAG=v2" >> $GITHUB_ENV
           else
             echo "TAG=v1" >> $GITHUB_ENV
@@ -301,7 +300,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          REGISTRY=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-prod
           docker build -t worker-service:${TAG} -t $REGISTRY:worker-${TAG} ./worker
 
       - name: Security scan with Trivy
@@ -437,24 +436,28 @@ jobs:
 
       - name: Push image to ECR
         run: |
-          REGISTRY=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-prod
           docker push $REGISTRY:worker-${TAG}
       
       - name: Configure kubectl
         run: |
           aws eks update-kubeconfig \
             --region ap-southeast-1 \
-            --name bq-eks-cluster-dev
+            --name bq-eks-cluster-prod
       
-      - name: Deploy application
-        run: |
-          kubectl apply -f k8s-specifications/
-      
-      - name: Update deployment
-        run: |
-          kubectl set image deployment/worker \
-          worker=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-dev:worker-${TAG}
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
 
-      - name: Wait for rollout
+      - name: Lint Helm chart
         run: |
-          kubectl rollout status deployment/worker
+          helm lint ./helm
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install mightycapstone ./helm \
+              --set worker.image.repository=${{ steps.login-ecr.outputs.registry }}/bq-eks-repo-prod \
+              --set worker.image.tag=worker-${TAG}
+
+      - name: Verify deployment
+        run: |
+         kubectl rollout status deployment/result --namespace default --timeout=120s
