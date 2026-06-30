@@ -3,6 +3,12 @@ replicaCount: 1
 image:
   pullPolicy: Always
 
+service:
+  type: NodePort
+  port: 8081
+  targetPort: 80
+  nodePort: 31001
+
 result:
   image:
     repository: <account>.dkr.ecr.ap-southeast-1.amazonaws.com/bq-eks-repo-prod
