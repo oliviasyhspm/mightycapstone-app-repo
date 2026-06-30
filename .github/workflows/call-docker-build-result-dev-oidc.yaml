@@ -1,14 +1,14 @@
 name: Build Result Service
 # Trigger OIDC test commit
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - feature/madhu-sample-dev
-    paths:
-      - 'result/**'
-      - '.github/workflows/call-docker-build-result.yaml'
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - feature/madhu-sample-dev
+#     paths:
+#       - 'result/**'
+#       - '.github/workflows/call-docker-build-result.yaml'
 #   pull_request:
 #     branches:
 #       - main
