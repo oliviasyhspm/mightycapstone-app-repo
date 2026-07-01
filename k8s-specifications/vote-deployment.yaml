@@ -1,12 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: vote-deployment
-  namespace: mightycapstone
   labels:
     app: vote
+  name: {{ .Release.Name }}-vote
 spec:
-  replicas: 2
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: vote
@@ -16,13 +15,8 @@ spec:
         app: vote
     spec:
       containers:
-      - name: vote
-        image: 255945442255.dkr.ecr.ap-southeast-1.amazonaws.com/mightycapstonevoting:vote-v2
+      - image: "{{ .Values.vote.image.repository }}:{{ .Values.vote.image.tag }}"
+        name: vote
         ports:
         - containerPort: 80
-          name: http
-        env:
-        - name: REDIS_HOST
-          value: redis-service
-        - name: DB_HOST
-          value: db-service
+          name: vote
