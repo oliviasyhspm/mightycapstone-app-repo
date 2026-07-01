@@ -7,13 +7,13 @@ metadata:
     app: vote
 
 spec:
-  type: NodePort
-
-  ports:
-    - name: vote-service
-      port: 8080
-      targetPort: 80
-      nodePort: 31000
+  type: {{ .Values.vote.service.type }}
 
   selector:
     app: vote
+
+  ports:
+  - name: vote-service
+    port: {{ .Values.vote.service.port }}
+    targetPort: {{ .Values.vote.service.targetPort }}
+    nodePort: {{ .Values.vote.service.nodePort }}

@@ -7,13 +7,13 @@ metadata:
     app: result
 
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.result.service.type }}
 
   selector:
     app: result
 
   ports:
   - name: result-service
-    port: {{ .Values.service.port }}
-    targetPort: {{ .Values.service.targetPort }}
-    nodePort: {{ .Values.service.nodePort }}
+    port: {{ .Values.result.service.port }}
+    targetPort: {{ .Values.result.service.targetPort }}
+    nodePort: {{ .Values.result.service.nodePort }}

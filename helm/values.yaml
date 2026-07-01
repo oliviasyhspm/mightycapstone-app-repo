@@ -19,11 +19,11 @@ vote:
     repository: <account>.dkr.ecr.ap-southeast-1.amazonaws.com/bq-eks-repo-prod
     tag: latest
 
-    service:
-      type: NodePort
-      port: 8080
-      targetPort: 80
-      nodePort: 31000
+  service:
+    type: NodePort
+    port: 8080
+    targetPort: 80
+    nodePort: 31000
 
 worker:
   image:
