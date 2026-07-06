@@ -1,4 +1,4 @@
-#### this is the dev workflow for result service, it will be triggered on push to development branch and will perform the following tasks:
+
 name: Build Result Service
 
 on:
