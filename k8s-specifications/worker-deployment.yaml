@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: worker-deployment
-  namespace: mightycapstone
+  # namespace: mightycapstone
   labels:
     app: worker
 spec:
