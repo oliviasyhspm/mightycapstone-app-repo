@@ -5,8 +5,14 @@ metadata:
   namespace: mightycapstone
   labels:
     app: vote
+  name: {{ .Release.Name }}-vote
 spec:
-  type: LoadBalancer   # 👈 no nodePort here
+  type: NodePort
+  ports:
+  - name: "vote-service"
+    port: {{ .Values.vote.service.port }}
+    targetPort: {{ .Values.vote.service.targetPort }}
+    nodePort: {{ .Values.vote.service.nodePort }}
   selector:
     app: vote
   ports:
