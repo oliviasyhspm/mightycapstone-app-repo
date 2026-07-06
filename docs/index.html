@@ -194,19 +194,16 @@ flowchart TD
     J --> K[Helm Deploy to EKS]
     K --> L[Dog vs Cat Voting App UI]
 </div>
-
 <h2>☸️ Kubernetes Deployment Flow</h2>
 <div class="mermaid">
 flowchart LR
     Dev[Development Branch] -->|Tag v1| DevEnv[DEV Environment]
     Staging[Staging Branch] -->|Tag v2| StagingEnv[STAGING Environment]
     Prod[Main Branch] -->|Tag v3| ProdEnv[PROD Environment]
-
     DevEnv --> Small[Small Compute (x1)]
     StagingEnv --> Medium[Medium Compute (x2)]
     ProdEnv --> Large[Large Compute (x5)]
 </div>
-
 <h2>🛡️ Security Scanning Tools</h2>
 <div class="mermaid">
 flowchart LR
