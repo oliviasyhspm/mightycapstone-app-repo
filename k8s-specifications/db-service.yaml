@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: db-service
-  namespace: mightycapstone   # 👈 ensure it matches your namespace
+  # namespace: mightycapstone   # 👈 ensure it matches your namespace
   labels:
     app: db
 spec:
