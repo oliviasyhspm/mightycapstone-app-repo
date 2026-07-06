@@ -293,7 +293,7 @@ jobs:
 
       - name: Set version tag
         run: |
-          if [[ "${GITHUB_REF##*/}" == "feature/madhu-sample-prod" ]]; then
+          if [[ "${GITHUB_REF##*/}" == "main" ]]; then
             echo "TAG=v2" >> $GITHUB_ENV
           else
             echo "TAG=v1" >> $GITHUB_ENV
