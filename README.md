@@ -1,6 +1,4 @@
 # MightyCapstone: Dog vs Cat Voting App 🐶🐱
-# MightyCapstone: Dog vs Cat Voting App 🐶🐱
-
 ## Team 2
 Akash, Charissa, Judith, Madhu, Olivia, Zichao
 
