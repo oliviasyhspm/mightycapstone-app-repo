@@ -178,7 +178,7 @@ helm install mightycapstone ./helm-chart
 
 <h2>📊 CI/CD Pipeline Diagram</h2>
 <div class="mermaid">
-  flowchart TD
+flowchart TD
     A[Developer Commit] --> B[GitHub Actions]
     B --> C{Security Scans}
     C -->|SAST| D[Semgrep]
@@ -197,7 +197,7 @@ helm install mightycapstone ./helm-chart
 
 <h2>☸️ Kubernetes Deployment Flow</h2>
 <div class="mermaid">
-  flowchart LR
+flowchart LR
     Dev[Development Branch] -->|Tag v1| DevEnv[DEV Environment]
     Staging[Staging Branch] -->|Tag v2| StagingEnv[STAGING Environment]
     Prod[Main Branch] -->|Tag v3| ProdEnv[PROD Environment]
@@ -209,7 +209,7 @@ helm install mightycapstone ./helm-chart
 
 <h2>🛡️ Security Scanning Tools</h2>
 <div class="mermaid">
-  flowchart LR
+flowchart LR
     A[Source Code] --> B[Semgrep - SAST]
     A --> C[Trivy - Dependencies & Containers]
     A --> D[Gitleaks - Secrets Detection]
@@ -223,7 +223,6 @@ helm install mightycapstone ./helm-chart
     F -->|Pass| G[Build & Deploy]
     F -->|Fail| H[Block Pipeline]
 </div>
-
 
 <script type="module">
   import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
